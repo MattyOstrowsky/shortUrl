@@ -1,0 +1,60 @@
+version: '3.8'
+name: url
+services:
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
+    networks:
+      - url
+      
+  urlapi:
+    image: urlapi
+    build:
+      context: .
+      dockerfile: Dockerfile.urlapi
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: mongodb
+      DB_PORT: ${DB_PORT}
+      COLLECTION_NAME: ${COLLECTION_NAME}
+    networks:
+      - url
+    depends_on:
+      - mongodb
+
+  urlcli:
+    image: urlcli
+    build:
+      context: .
+      dockerfile: Dockerfile.urlcli
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_HOST: mongodb
+      DB_PORT: ${DB_PORT}
+      COLLECTION_NAME: ${COLLECTION_NAME}
+      MIN_LENGTH: ${MIN_LENGTH}
+      MAX_LENGTH: ${MAX_LENGTH}
+      DEFAULT_LENGTH: ${DEFAULT_LENGTH}
+    networks:
+      - url
+
+volumes:
+  mongodb_data:
+
+networks:
+  url:

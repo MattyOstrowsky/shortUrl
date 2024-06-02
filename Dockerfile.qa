@@ -1,0 +1,14 @@
+FROM golang:alpine
+
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+
+WORKDIR /app
+RUN mkdir -p /app
+RUN mkdir ./src
+RUN go install honnef.co/go/tools/cmd/staticcheck@latest
+RUN go install golang.org/x/lint/golint@latest
+RUN go install golang.org/x/tools/cmd/goimports@latest
+RUN go install github.com/kisielk/errcheck@latest
+# RUN go install go install mvdan.cc/gofumpt@latest
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin v1.51.2

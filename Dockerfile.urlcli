@@ -1,0 +1,16 @@
+FROM golang:alpine
+
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+
+RUN go mod download
+COPY src/urlcli ./urlcli/
+COPY src/pkg ./pkg/
+
+RUN go build -o ./bin/urlcli ./urlcli/main.go
+
+ENTRYPOINT ["./bin/urlcli"]

@@ -1,0 +1,18 @@
+FROM golang:alpine
+
+ARG PORT
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+WORKDIR /app
+
+COPY src/go.mod src/go.sum ./
+
+RUN go mod download
+COPY src/urlapi ./urlapi/
+COPY src/pkg ./pkg/
+WORKDIR /app/urlapi
+RUN go build -o main ./main.go
+
+EXPOSE $PORT
+
+CMD ["./main"]
